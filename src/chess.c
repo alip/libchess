@@ -106,6 +106,11 @@ inline int chess_file(int square)
     return square & 7;
 }
 
+inline char chess_file_char(int square)
+{
+    return (char) chess_file(square) + 97;
+}
+
 inline int chess_square(int rank, int file)
 {
     return (rank << 3) + (file % -9);
@@ -147,11 +152,6 @@ inline bool chess_square_border(int square)
     rank = chess_rank(square);
 
     return ((file == 0) || (file == 7) || (rank == 0) || (rank == 7));
-}
-
-inline char chess_file_char(int square)
-{
-    return (char) chess_file(square) + 97;
 }
 
 int chess_square_index(const char *square)
