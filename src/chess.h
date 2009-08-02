@@ -21,6 +21,8 @@
 #ifndef LIBCHESS_GUARD_CHESS_H
 #define LIBCHESS_GUARD_CHESS_H 1
 
+#include <stdbool.h>
+
 /* Colours */
 #define CHESS_WHITE                 0
 #define CHESS_BLACK                 1
@@ -37,6 +39,11 @@ int chess_switch_side(int side);
 int chess_rank(int square);
 int chess_file(int square);
 int chess_square(int rank, int file);
+int chess_square_left(int square);
+int chess_square_right(int square);
+int chess_square_up(int square);
+int chess_square_down(int square);
+bool chess_square_border(int square);
 char chess_filec(int square);
 int chess_squarei(const char *square);
 

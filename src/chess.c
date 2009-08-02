@@ -18,6 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "chess.h"
@@ -108,6 +109,44 @@ inline int chess_file(int square)
 inline int chess_square(int rank, int file)
 {
     return (rank << 3) + (file % -9);
+}
+
+inline int chess_square_left(int square)
+{
+    if (0 != square % 8)
+        return square - 1;
+    return -1;
+}
+
+inline int chess_square_right(int square)
+{
+    if (7 != square % 8)
+        return square + 1;
+    return -1;
+}
+
+inline int chess_square_up(int square)
+{
+    if (55 > square)
+        return square + 8;
+    return -1;
+}
+
+inline int chess_square_down(int square)
+{
+    if (7 < square)
+        return square - 8;
+    return -1;
+}
+
+inline bool chess_square_border(int square)
+{
+    int file, rank;
+
+    file = chess_file(square);
+    rank = chess_rank(square);
+
+    return ((file == 0) || (file == 7) || (rank == 0) || (rank == 7));
 }
 
 inline char chess_filec(int square)

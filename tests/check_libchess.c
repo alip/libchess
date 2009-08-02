@@ -99,6 +99,74 @@ START_TEST(test_chess_square)
 }
 END_TEST
 
+START_TEST(test_chess_square_left)
+{
+    int sq;
+
+    for (sq = 0; sq < 64; sq++) {
+        if (0 == sq % 8)
+            fail_unless(-1 == chess_square_left(sq), "chess_square_left() failed for square: %d", sq);
+        else
+            fail_unless(sq - 1 == chess_square_left(sq), "chess_square_left() failed for square: %d", sq);
+    }
+}
+END_TEST
+
+START_TEST(test_chess_square_right)
+{
+    int sq;
+
+    for (sq = 0; sq < 64; sq++) {
+        if (7 == sq % 8)
+            fail_unless(-1 == chess_square_right(sq), "chess_square_right() failed for square: %d", sq);
+        else
+            fail_unless(sq + 1 == chess_square_right(sq), "chess_square_right() failed for square: %d", sq);
+    }
+}
+END_TEST
+
+START_TEST(test_chess_square_up)
+{
+    int sq;
+
+    for (sq = 0; sq < 64; sq++) {
+        if (54 < sq)
+            fail_unless(-1 == chess_square_up(sq), "chess_square_up() failed for square: %d", sq);
+        else
+            fail_unless(sq + 8 == chess_square_up(sq), "chess_square_up() failed for square: %d", sq);
+    }
+}
+END_TEST
+
+START_TEST(test_chess_square_down)
+{
+    int sq;
+
+    for (sq = 0; sq < 64; sq++) {
+        if (8 > sq)
+            fail_unless(-1 == chess_square_down(sq), "chess_square_down() failed for square: %d", sq);
+        else
+            fail_unless(sq - 8 == chess_square_down(sq), "chess_square_down() failed for square: %d", sq);
+    }
+}
+END_TEST
+
+START_TEST(test_chess_square_border)
+{
+    int sq;
+    int rank, file;
+
+    for (sq = 0; sq < 64; sq++) {
+        rank = chess_rank(sq);
+        file = chess_file(sq);
+        if (file == 0 || file == 7 || rank == 0 || rank == 7)
+            fail_unless(chess_square_border(sq), "chess_square_border() failed for square: %d", sq);
+        else
+            fail_if(chess_square_border(sq), "chess_square_border() failed for square: %d", sq);
+    }
+}
+END_TEST
+
 START_TEST(test_chess_filec)
 {
     int sq;
@@ -191,7 +259,7 @@ START_TEST(test_chess_squarei)
 }
 END_TEST
 
-Suite *chess_suite(void)
+static Suite *chess_suite(void)
 {
     Suite *s = suite_create("Chess");
 
@@ -201,6 +269,11 @@ Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_rank);
     tcase_add_test(tc_chess, test_chess_file);
     tcase_add_test(tc_chess, test_chess_square);
+    tcase_add_test(tc_chess, test_chess_square_left);
+    tcase_add_test(tc_chess, test_chess_square_right);
+    tcase_add_test(tc_chess, test_chess_square_up);
+    tcase_add_test(tc_chess, test_chess_square_down);
+    tcase_add_test(tc_chess, test_chess_square_border);
     tcase_add_test(tc_chess, test_chess_filec);
     tcase_add_test(tc_chess, test_chess_squarei);
 
