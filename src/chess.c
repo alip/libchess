@@ -18,7 +18,7 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <assert.h>
+#include <stdlib.h>
 
 #include "chess.h"
 #include "magicmoves.h"
@@ -105,8 +105,23 @@ inline int chess_file(int square)
     return square & 7;
 }
 
+inline int chess_square(int rank, int file)
+{
+    return (rank << 3) + (file % -9);
+}
+
 inline char chess_filec(int square)
 {
     return (char) chess_file(square) + 97;
+}
+
+int chess_squarei(const char *square)
+{
+    int rank, file;
+
+    file = square[0] - 97;
+    rank = atoi(++square) - 1;
+
+    return chess_square(rank, file);
 }
 

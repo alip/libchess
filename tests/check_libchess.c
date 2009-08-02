@@ -84,6 +84,21 @@ START_TEST(test_chess_file)
 }
 END_TEST
 
+START_TEST(test_chess_square)
+{
+    int sq = 0;
+    int rank, file;
+
+    for (rank = 0; rank < 8; rank++) {
+        for (file = 0; file < 8; file++) {
+            fail_unless(sq == chess_square(rank, file), "chess_square() failed for square: %d (got: %d)",
+                    sq, chess_square(rank, file));
+            ++sq;
+        }
+    }
+}
+END_TEST
+
 START_TEST(test_chess_filec)
 {
     int sq;
@@ -107,6 +122,75 @@ START_TEST(test_chess_filec)
 }
 END_TEST
 
+START_TEST(test_chess_squarei)
+{
+    fail_unless(0 == chess_squarei("a1"), "chess_squarei() failed for a1 (got: %d)", chess_squarei("a1"));
+    fail_unless(1 == chess_squarei("b1"), "chess_squarei() failed for b1");
+    fail_unless(2 == chess_squarei("c1"), "chess_squarei() failed for c1");
+    fail_unless(3 == chess_squarei("d1"), "chess_squarei() failed for d1");
+    fail_unless(4 == chess_squarei("e1"), "chess_squarei() failed for e1");
+    fail_unless(5 == chess_squarei("f1"), "chess_squarei() failed for f1");
+    fail_unless(6 == chess_squarei("g1"), "chess_squarei() failed for g1");
+    fail_unless(7 == chess_squarei("h1"), "chess_squarei() failed for h1");
+    fail_unless(8 == chess_squarei("a2"), "chess_squarei() failed for a2");
+    fail_unless(9 == chess_squarei("b2"), "chess_squarei() failed for b2");
+    fail_unless(10 == chess_squarei("c2"), "chess_squarei() failed for c2");
+    fail_unless(11 == chess_squarei("d2"), "chess_squarei() failed for d2");
+    fail_unless(12 == chess_squarei("e2"), "chess_squarei() failed for e2");
+    fail_unless(13 == chess_squarei("f2"), "chess_squarei() failed for f2");
+    fail_unless(14 == chess_squarei("g2"), "chess_squarei() failed for g2");
+    fail_unless(15 == chess_squarei("h2"), "chess_squarei() failed for h2");
+    fail_unless(16 == chess_squarei("a3"), "chess_squarei() failed for a3");
+    fail_unless(17 == chess_squarei("b3"), "chess_squarei() failed for b3");
+    fail_unless(18 == chess_squarei("c3"), "chess_squarei() failed for c3");
+    fail_unless(19 == chess_squarei("d3"), "chess_squarei() failed for d3");
+    fail_unless(20 == chess_squarei("e3"), "chess_squarei() failed for e3");
+    fail_unless(21 == chess_squarei("f3"), "chess_squarei() failed for f3");
+    fail_unless(22 == chess_squarei("g3"), "chess_squarei() failed for g3");
+    fail_unless(23 == chess_squarei("h3"), "chess_squarei() failed for h3");
+    fail_unless(24 == chess_squarei("a4"), "chess_squarei() failed for a4");
+    fail_unless(25 == chess_squarei("b4"), "chess_squarei() failed for b4");
+    fail_unless(26 == chess_squarei("c4"), "chess_squarei() failed for c4");
+    fail_unless(27 == chess_squarei("d4"), "chess_squarei() failed for d4");
+    fail_unless(28 == chess_squarei("e4"), "chess_squarei() failed for e4");
+    fail_unless(29 == chess_squarei("f4"), "chess_squarei() failed for f4");
+    fail_unless(30 == chess_squarei("g4"), "chess_squarei() failed for g4");
+    fail_unless(31 == chess_squarei("h4"), "chess_squarei() failed for h4");
+    fail_unless(32 == chess_squarei("a5"), "chess_squarei() failed for a5");
+    fail_unless(33 == chess_squarei("b5"), "chess_squarei() failed for b5");
+    fail_unless(34 == chess_squarei("c5"), "chess_squarei() failed for c5");
+    fail_unless(35 == chess_squarei("d5"), "chess_squarei() failed for d5");
+    fail_unless(36 == chess_squarei("e5"), "chess_squarei() failed for e5");
+    fail_unless(37 == chess_squarei("f5"), "chess_squarei() failed for f5");
+    fail_unless(38 == chess_squarei("g5"), "chess_squarei() failed for g5");
+    fail_unless(39 == chess_squarei("h5"), "chess_squarei() failed for h5");
+    fail_unless(40 == chess_squarei("a6"), "chess_squarei() failed for a6");
+    fail_unless(41 == chess_squarei("b6"), "chess_squarei() failed for b6");
+    fail_unless(42 == chess_squarei("c6"), "chess_squarei() failed for c6");
+    fail_unless(43 == chess_squarei("d6"), "chess_squarei() failed for d6");
+    fail_unless(44 == chess_squarei("e6"), "chess_squarei() failed for e6");
+    fail_unless(45 == chess_squarei("f6"), "chess_squarei() failed for f6");
+    fail_unless(46 == chess_squarei("g6"), "chess_squarei() failed for g6");
+    fail_unless(47 == chess_squarei("h6"), "chess_squarei() failed for h6");
+    fail_unless(48 == chess_squarei("a7"), "chess_squarei() failed for a7");
+    fail_unless(49 == chess_squarei("b7"), "chess_squarei() failed for b7");
+    fail_unless(50 == chess_squarei("c7"), "chess_squarei() failed for c7");
+    fail_unless(51 == chess_squarei("d7"), "chess_squarei() failed for d7");
+    fail_unless(52 == chess_squarei("e7"), "chess_squarei() failed for e7");
+    fail_unless(53 == chess_squarei("f7"), "chess_squarei() failed for f7");
+    fail_unless(54 == chess_squarei("g7"), "chess_squarei() failed for g7");
+    fail_unless(55 == chess_squarei("h7"), "chess_squarei() failed for h7");
+    fail_unless(56 == chess_squarei("a8"), "chess_squarei() failed for a8");
+    fail_unless(57 == chess_squarei("b8"), "chess_squarei() failed for b8");
+    fail_unless(58 == chess_squarei("c8"), "chess_squarei() failed for c8");
+    fail_unless(59 == chess_squarei("d8"), "chess_squarei() failed for d8");
+    fail_unless(60 == chess_squarei("e8"), "chess_squarei() failed for e8");
+    fail_unless(61 == chess_squarei("f8"), "chess_squarei() failed for f8");
+    fail_unless(62 == chess_squarei("g8"), "chess_squarei() failed for g8");
+    fail_unless(63 == chess_squarei("h8"), "chess_squarei() failed for h8");
+}
+END_TEST
+
 Suite *chess_suite(void)
 {
     Suite *s = suite_create("Chess");
@@ -116,7 +200,9 @@ Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_switch_side);
     tcase_add_test(tc_chess, test_chess_rank);
     tcase_add_test(tc_chess, test_chess_file);
+    tcase_add_test(tc_chess, test_chess_square);
     tcase_add_test(tc_chess, test_chess_filec);
+    tcase_add_test(tc_chess, test_chess_squarei);
 
     suite_add_tcase(s, tc_chess);
 
