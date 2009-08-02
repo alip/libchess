@@ -149,7 +149,7 @@ inline bool chess_square_border(int square)
     return ((file == 0) || (file == 7) || (rank == 0) || (rank == 7));
 }
 
-inline char chess_filec(int square)
+inline char chess_file_char(int square)
 {
     return (char) chess_file(square) + 97;
 }

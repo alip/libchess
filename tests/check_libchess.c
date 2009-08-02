@@ -167,26 +167,26 @@ START_TEST(test_chess_square_border)
 }
 END_TEST
 
-START_TEST(test_chess_filec)
+START_TEST(test_chess_file_char)
 {
     int sq;
 
     for (sq = 0; sq < 57; sq += 8)
-        fail_unless('a' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('a' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 1; sq < 58; sq += 8)
-        fail_unless('b' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('b' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 2; sq < 59; sq += 8)
-        fail_unless('c' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('c' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 3; sq < 60; sq += 8)
-        fail_unless('d' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('d' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 4; sq < 61; sq += 8)
-        fail_unless('e' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('e' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 5; sq < 62; sq += 8)
-        fail_unless('f' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('f' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 6; sq < 63; sq += 8)
-        fail_unless('g' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('g' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
     for (sq = 7; sq < 64; sq += 8)
-        fail_unless('h' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+        fail_unless('h' == chess_file_char(sq), "chess_file_char() failed for square: %d", sq);
 }
 END_TEST
 
@@ -274,7 +274,7 @@ static Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_square_up);
     tcase_add_test(tc_chess, test_chess_square_down);
     tcase_add_test(tc_chess, test_chess_square_border);
-    tcase_add_test(tc_chess, test_chess_filec);
+    tcase_add_test(tc_chess, test_chess_file_char);
     tcase_add_test(tc_chess, test_chess_squarei);
 
     suite_add_tcase(s, tc_chess);
