@@ -321,7 +321,6 @@ START_TEST(test_chess_board_clear_piece)
 {
     int x, y;
     int sq;
-    int piece, side;
     struct chess_board board;
 
     memset(&board, 0, sizeof(struct chess_board));
@@ -347,6 +346,26 @@ START_TEST(test_chess_board_clear_piece)
 }
 END_TEST
 
+START_TEST(test_chess_board_has_piece)
+{
+    int x, y;
+    int sq;
+    struct chess_board board;
+
+    memset(&board, 0, sizeof(struct chess_board));
+
+    for (x = 0; x < 8; x++) {
+        for (y = 0; y < 8; y++) {
+            sq = chess_square(x, y);
+            chess_board_set_piece(&board, sq, CHESS_ROOK, CHESS_BLACK);
+
+            fail_unless(chess_board_has_piece(board, sq, CHESS_BLACK), "Black doesn't have a rook on square: %d", sq);
+            fail_if(chess_board_has_piece(board, sq, CHESS_WHITE), "White has a rook on square: %d", sq);
+        }
+    }
+}
+END_TEST
+
 static Suite *chess_suite(void)
 {
     Suite *s = suite_create("Chess");
@@ -367,6 +386,7 @@ static Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_board_set_piece);
     tcase_add_test(tc_chess, test_chess_board_get_piece);
     tcase_add_test(tc_chess, test_chess_board_clear_piece);
+    tcase_add_test(tc_chess, test_chess_board_has_piece);
 
     suite_add_tcase(s, tc_chess);
 

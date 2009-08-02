@@ -216,3 +216,8 @@ void chess_board_clear_piece(struct chess_board *board_ptr, int square, int piec
     board_ptr->cboard[square] = 0;
 }
 
+bool chess_board_has_piece(struct chess_board board, int square, int side)
+{
+    return (0 != (board.occupied[side] & (1ULL << square)));
+}
+

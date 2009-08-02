@@ -142,5 +142,10 @@ int chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, 
  **/
 void chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, int side);
 
+/**
+ * Returns true if the given side has a piece on the given square.
+ **/
+bool chess_board_has_piece(struct chess_board board, int square, int side);
+
 #endif // LIBCHESS_GUARD_CHESS_H
 
