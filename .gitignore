@@ -35,7 +35,8 @@ gprof*
 /ltmain.sh
 
 doc/api
-doc/libchess.tags
+doc/doxygen.conf
+doc/libchess.tag
 
 m4/libtool.m4
 m4/lt*.m4
