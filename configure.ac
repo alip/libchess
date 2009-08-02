@@ -54,10 +54,16 @@ done
 AC_SUBST([LIBCHESS_CFLAGS])
 dnl }}}
 
+dnl {{{ Library checks
+PKG_PROG_PKG_CONFIG([0.20.0])
+PKG_CHECK_MODULES([check], [check >= 0.9.4],,)
+dnl }}}
+
 dnl {{{ Output
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
 		  Makefile
 		  src/Makefile
+		  tests/Makefile
 	)
 dnl }}}

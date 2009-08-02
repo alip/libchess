@@ -34,6 +34,6 @@
 #define CHESS_QUEEN     5
 #define CHESS_KING      6
 
-int switch_side(int side);
+int chess_switch_side(int side);
 
 #endif // LIBCHESS_GUARD_CHESS_H
