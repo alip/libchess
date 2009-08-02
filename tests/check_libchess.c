@@ -66,21 +66,44 @@ START_TEST(test_chess_file)
     int sq;
 
     for (sq = 0; sq < 57; sq += 8)
-        fail_unless(0 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(0 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 1; sq < 58; sq += 8)
-        fail_unless(1 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(1 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 2; sq < 59; sq += 8)
-        fail_unless(2 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(2 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 3; sq < 60; sq += 8)
-        fail_unless(3 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(3 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 4; sq < 61; sq += 8)
-        fail_unless(4 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(4 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 5; sq < 62; sq += 8)
-        fail_unless(5 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(5 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 6; sq < 63; sq += 8)
-        fail_unless(6 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(6 == chess_file(sq), "chess_file() failed for square: %d", sq);
     for (sq = 7; sq < 64; sq += 8)
-        fail_unless(7 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+        fail_unless(7 == chess_file(sq), "chess_file() failed for square: %d", sq);
+}
+END_TEST
+
+START_TEST(test_chess_filec)
+{
+    int sq;
+
+    for (sq = 0; sq < 57; sq += 8)
+        fail_unless('a' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 1; sq < 58; sq += 8)
+        fail_unless('b' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 2; sq < 59; sq += 8)
+        fail_unless('c' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 3; sq < 60; sq += 8)
+        fail_unless('d' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 4; sq < 61; sq += 8)
+        fail_unless('e' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 5; sq < 62; sq += 8)
+        fail_unless('f' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 6; sq < 63; sq += 8)
+        fail_unless('g' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
+    for (sq = 7; sq < 64; sq += 8)
+        fail_unless('h' == chess_filec(sq), "chess_filec() failed for square: %d", sq);
 }
 END_TEST
 
@@ -93,6 +116,7 @@ Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_switch_side);
     tcase_add_test(tc_chess, test_chess_rank);
     tcase_add_test(tc_chess, test_chess_file);
+    tcase_add_test(tc_chess, test_chess_filec);
 
     suite_add_tcase(s, tc_chess);
 

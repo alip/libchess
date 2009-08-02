@@ -36,5 +36,7 @@
 int chess_switch_side(int side);
 int chess_rank(int square);
 int chess_file(int square);
+char chess_filec(int square);
 
 #endif // LIBCHESS_GUARD_CHESS_H
+

@@ -104,3 +104,9 @@ inline int chess_file(int square)
 {
     return square & 7;
 }
+
+inline char chess_filec(int square)
+{
+    return (char) chess_file(square) + 97;
+}
+
