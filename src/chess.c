@@ -92,7 +92,7 @@ static const unsigned long long KING_ATTACKS[64] = {
 
 inline int chess_switch_side(int side)
 {
-    return (1 ^ (side - 1)) + 1;
+    return 1 ^ side;
 }
 
 inline int chess_rank(int square)
@@ -104,4 +104,3 @@ inline int chess_file(int square)
 {
     return square & 7;
 }
-

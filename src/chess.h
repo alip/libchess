@@ -22,9 +22,8 @@
 #define LIBCHESS_GUARD_CHESS_H 1
 
 /* Colours */
-#define CHESS_WHITE                 1
-#define CHESS_BLACK                 2
-#define CHESS_NO_COLOUR             3
+#define CHESS_WHITE                 0
+#define CHESS_BLACK                 1
 
 /* Pieces */
 #define CHESS_PAWN      1
