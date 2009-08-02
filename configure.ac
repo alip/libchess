@@ -59,11 +59,25 @@ PKG_PROG_PKG_CONFIG([0.20.0])
 PKG_CHECK_MODULES([check], [check >= 0.9.4],,)
 dnl }}}
 
+dnl {{{ Doxygen
+AC_MSG_CHECKING([whether to enable doxygen])
+AC_ARG_ENABLE([doxygen],
+			  AS_HELP_STRING([--enable-doxygen], [Enable 'make doxygen' (developer docs)]),
+			  [HAVE_DOXYGEN=$enableval
+			   AC_MSG_RESULT([$enableval])],
+			  [AC_MSG_RESULT([autodetect])
+			   AC_CHECK_PROG(HAVE_DOXYGEN, [doxygen], [yes], [no])])
+AC_SUBST([HAVE_DOXYGEN])
+AM_CONDITIONAL([HAVE_DOXYGEN], test "x$HAVE_DOXYGEN" = "xyes")
+dnl }}}
+
 dnl {{{ Output
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
 		  Makefile
 		  src/Makefile
 		  tests/Makefile
+		  doc/Makefile
+		  doc/doxygen.conf
 	)
 dnl }}}

@@ -34,6 +34,9 @@ gprof*
 /libtool
 /ltmain.sh
 
+doc/api
+doc/libchess.tags
+
 m4/libtool.m4
 m4/lt*.m4
 
