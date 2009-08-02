@@ -19,6 +19,7 @@
  */
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <check.h>
 
@@ -259,6 +260,93 @@ START_TEST(test_chess_square_index)
 }
 END_TEST
 
+START_TEST(test_chess_board_set_piece)
+{
+    int x, y;
+    int sq;
+    struct chess_board board;
+
+    memset(&board, 0, sizeof(struct chess_board));
+    for (x = 0; x < 8; x++) {
+        for (y = 0; y < 8; y++) {
+            sq = chess_square(x, y);
+            chess_board_set_piece(&board, sq, CHESS_BISHOP, CHESS_WHITE);
+
+            fail_unless(0 != (board.pieces[CHESS_WHITE][CHESS_BISHOP] & (1ULL << sq)),
+                    "board.pieces[CHESS_WHITE][CHESS_BISHOP] doesn't have square %d set!", sq);
+            fail_unless(0 != (board.occupied[CHESS_WHITE] & (1ULL << sq)),
+                    "board.occupied[CHESS_WHITE] doesn't have square %d set!", sq);
+            fail_unless(0 != (board.occupied[2] & (1ULL << sq)),
+                    "board.occupied[2] doesn't have square %d set!", sq);
+            fail_unless(0 == (board.occupied[3] & (1ULL << sq)),
+                    "board.occupied[3] has square %d set!", sq);
+            fail_unless(CHESS_BISHOP == board.cboard[sq],
+                    "board.cboard[%d] != CHESS_BISHOP", sq);
+        }
+    }
+}
+END_TEST
+
+START_TEST(test_chess_board_get_piece)
+{
+    int x, y;
+    int sq;
+    int piece, side;
+    struct chess_board board;
+
+    memset(&board, 0, sizeof(struct chess_board));
+
+    /* Invalid arguments */
+    fail_unless(-1 == chess_board_get_piece(board, 0, NULL, NULL), "chess_board_get_piece() doesn't fail gracefully");
+
+    for (x = 0; x < 8; x++) {
+        for (y = 0; y < 8; y++) {
+            sq = chess_square(x, y);
+            chess_board_set_piece(&board, sq, CHESS_KING, CHESS_BLACK);
+
+            fail_unless(0 == chess_board_get_piece(board, sq, &piece, NULL),
+                    "0 != chess_board_get_piece(%p, %d, %p, %p)", &board, sq, &piece, NULL);
+            fail_unless(0 == chess_board_get_piece(board, sq, NULL, &side),
+                    "0 != chess_board_get_piece(%p, %d, %p, %d)", &board, sq, NULL, &side);
+            fail_unless(0 == chess_board_get_piece(board, sq, &piece, &side),
+                    "0 != chess_board_get_piece(%p, %d, %p, %d)", &board, sq, &piece, &side);
+            fail_unless(CHESS_KING == piece, "CHESS_KING != %d", piece);
+            fail_unless(CHESS_BLACK == side, "CHESS_BLACK != %d", side);
+        }
+    }
+}
+END_TEST
+
+START_TEST(test_chess_board_clear_piece)
+{
+    int x, y;
+    int sq;
+    int piece, side;
+    struct chess_board board;
+
+    memset(&board, 0, sizeof(struct chess_board));
+
+    for (x = 0; x < 8; x++) {
+        for (y = 0; y < 8; y++) {
+            sq = chess_square(x, y);
+            chess_board_set_piece(&board, sq, CHESS_PAWN, CHESS_WHITE);
+            chess_board_clear_piece(&board, sq, CHESS_PAWN, CHESS_WHITE);
+
+            fail_unless(0 == (board.pieces[CHESS_WHITE][CHESS_PAWN] & (1ULL << sq)),
+                    "board.pieces[CHESS_WHITE][CHESS_BISHOP] has square %d set!", sq);
+            fail_unless(0 == (board.occupied[CHESS_WHITE] & (1ULL << sq)),
+                    "board.occupied[CHESS_WHITE] has square %d set!", sq);
+            fail_unless(0 == (board.occupied[2] & (1ULL << sq)),
+                    "board.occupied[2] has square %d set!", sq);
+            fail_unless(0 != (board.occupied[3] & (1ULL << sq)),
+                    "board.occupied[3] doesn't have square %d set!", sq);
+            fail_unless(0 == board.cboard[sq],
+                    "board.cboard[%d] != 0", sq);
+        }
+    }
+}
+END_TEST
+
 static Suite *chess_suite(void)
 {
     Suite *s = suite_create("Chess");
@@ -276,6 +364,9 @@ static Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_square_border);
     tcase_add_test(tc_chess, test_chess_file_char);
     tcase_add_test(tc_chess, test_chess_square_index);
+    tcase_add_test(tc_chess, test_chess_board_set_piece);
+    tcase_add_test(tc_chess, test_chess_board_get_piece);
+    tcase_add_test(tc_chess, test_chess_board_clear_piece);
 
     suite_add_tcase(s, tc_chess);
 

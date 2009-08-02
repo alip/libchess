@@ -24,8 +24,8 @@
 #include <stdbool.h>
 
 /* Colours */
-#define CHESS_WHITE                 0
-#define CHESS_BLACK                 1
+#define CHESS_WHITE 0
+#define CHESS_BLACK 1
 
 /* Pieces */
 #define CHESS_PAWN      1
@@ -35,17 +35,36 @@
 #define CHESS_QUEEN     5
 #define CHESS_KING      6
 
+/* This structure represents a chess board. */
+struct chess_board {
+    int side;                           /* Side to move */
+    int en_passant;                     /* En passant square */
+    int castling_flag;                  /* Castling flags */
+    int king_isq;                       /* Initial square of the white king */
+    int kingrook_isq;                   /* Initial square of the white king rook */
+    int queenrook_isq;                  /* Initial square of the white queen rook */
+    int rhmc;                           /* Reversible half move counter */
+    int fmc;                            /* Full move counter */
+    int cboard[64];                     /* cboard[sq] gives the piece on square sq. */
+    unsigned long long occupied[4];     /* Occupied squares, (white, black, all, empty) */
+    unsigned long long pieces[2][6];    /* Pieces */
+};
+
 int chess_switch_side(int side);
 int chess_rank(int square);
 int chess_file(int square);
+char chess_file_char(int square);
 int chess_square(int rank, int file);
 int chess_square_left(int square);
 int chess_square_right(int square);
 int chess_square_up(int square);
 int chess_square_down(int square);
 bool chess_square_border(int square);
-char chess_file_char(int square);
 int chess_square_index(const char *square);
+
+void chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int side);
+int chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, int *side_ptr);
+void chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, int side);
 
 #endif // LIBCHESS_GUARD_CHESS_H
 

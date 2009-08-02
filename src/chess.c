@@ -164,3 +164,55 @@ int chess_square_index(const char *square)
     return chess_square(rank, file);
 }
 
+void chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int side)
+{
+    int sqbit;
+
+    sqbit = (1ULL << square);
+    board_ptr->pieces[side][piece] |= sqbit;
+    board_ptr->occupied[side] |= sqbit;
+    board_ptr->occupied[2] |= sqbit;
+    board_ptr->occupied[3] &= ~sqbit;
+    board_ptr->cboard[square] = piece;
+}
+
+int chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, int *side_ptr)
+{
+    int piece;
+
+    if (NULL == piece_ptr && NULL == side_ptr)
+        return -1;
+
+    piece = board.cboard[square];
+    if (0 == piece) {
+        if (NULL != piece_ptr)
+            *piece_ptr = 0;
+        if (NULL != side_ptr)
+            *side_ptr = 0;
+        return -1;
+    }
+
+    if (NULL != piece_ptr)
+        *piece_ptr = piece;
+
+    if (NULL != side_ptr) {
+        if (0 != (board.pieces[CHESS_WHITE][piece] & (1ULL << square)))
+            *side_ptr = CHESS_WHITE;
+        else
+            *side_ptr = CHESS_BLACK;
+    }
+    return 0;
+}
+
+void chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, int side)
+{
+    int sqbit;
+
+    sqbit = (1ULL << square);
+    board_ptr->pieces[side][piece] &= ~sqbit;
+    board_ptr->occupied[side] &= ~sqbit;
+    board_ptr->occupied[2] &= ~sqbit;
+    board_ptr->occupied[3] |= sqbit;
+    board_ptr->cboard[square] = 0;
+}
+
