@@ -154,7 +154,7 @@ inline char chess_file_char(int square)
     return (char) chess_file(square) + 97;
 }
 
-int chess_squarei(const char *square)
+int chess_square_index(const char *square)
 {
     int rank, file;
 

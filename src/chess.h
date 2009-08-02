@@ -45,7 +45,7 @@ int chess_square_up(int square);
 int chess_square_down(int square);
 bool chess_square_border(int square);
 char chess_file_char(int square);
-int chess_squarei(const char *square);
+int chess_square_index(const char *square);
 
 #endif // LIBCHESS_GUARD_CHESS_H
 
