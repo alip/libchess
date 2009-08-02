@@ -95,3 +95,13 @@ inline int chess_switch_side(int side)
     return (1 ^ (side - 1)) + 1;
 }
 
+inline int chess_rank(int square)
+{
+    return square >> 3;
+}
+
+inline int chess_file(int square)
+{
+    return square & 7;
+}
+

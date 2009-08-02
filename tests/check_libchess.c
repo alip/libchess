@@ -38,12 +38,62 @@ START_TEST(test_chess_switch_side)
 }
 END_TEST
 
+START_TEST(test_chess_rank)
+{
+    int sq;
+
+    for (sq = 0; sq < 8; sq++)
+        fail_unless(0 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 8; sq < 16; sq++)
+        fail_unless(1 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 16; sq < 24; sq++)
+        fail_unless(2 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 24; sq < 32; sq++)
+        fail_unless(3 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 32; sq < 40; sq++)
+        fail_unless(4 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 40; sq < 48; sq++)
+        fail_unless(5 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 48; sq < 56; sq++)
+        fail_unless(6 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 56; sq < 64; sq++)
+        fail_unless(7 == chess_rank(sq), "chess_rank() failed for square: %d", sq);
+}
+END_TEST
+
+START_TEST(test_chess_file)
+{
+    int sq;
+
+    for (sq = 0; sq < 57; sq += 8)
+        fail_unless(0 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 1; sq < 58; sq += 8)
+        fail_unless(1 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 2; sq < 59; sq += 8)
+        fail_unless(2 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 3; sq < 60; sq += 8)
+        fail_unless(3 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 4; sq < 61; sq += 8)
+        fail_unless(4 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 5; sq < 62; sq += 8)
+        fail_unless(5 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 6; sq < 63; sq += 8)
+        fail_unless(6 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+    for (sq = 7; sq < 64; sq += 8)
+        fail_unless(7 == chess_file(sq), "chess_rank() failed for square: %d", sq);
+}
+END_TEST
+
 Suite *chess_suite(void)
 {
     Suite *s = suite_create("Chess");
 
     TCase *tc_chess = tcase_create("chess");
+
     tcase_add_test(tc_chess, test_chess_switch_side);
+    tcase_add_test(tc_chess, test_chess_rank);
+    tcase_add_test(tc_chess, test_chess_file);
+
     suite_add_tcase(s, tc_chess);
 
     return s;
