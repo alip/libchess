@@ -113,6 +113,12 @@ bool chess_square_border(int square);
 int chess_square_index(const char *square);
 
 /**
+ * Returns the square notation of the given square index.
+ * Returns NULL if the square index is invalid.
+ **/
+const char *chess_square_name(int square);
+
+/**
  * This structure represents a chess board.
  **/
 struct chess_board {
@@ -141,7 +147,6 @@ int chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, 
  * Clear the given piece on the given square of the board.
  **/
 void chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, int side);
-
 /**
  * Returns true if the given side has a piece on the given square.
  **/

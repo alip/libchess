@@ -193,7 +193,7 @@ END_TEST
 
 START_TEST(test_chess_square_index)
 {
-    fail_unless(0 == chess_square_index("a1"), "chess_square_index() failed for a1 (got: %d)", chess_square_index("a1"));
+    fail_unless(0 == chess_square_index("a1"), "chess_square_index() failed for a1");
     fail_unless(1 == chess_square_index("b1"), "chess_square_index() failed for b1");
     fail_unless(2 == chess_square_index("c1"), "chess_square_index() failed for c1");
     fail_unless(3 == chess_square_index("d1"), "chess_square_index() failed for d1");
