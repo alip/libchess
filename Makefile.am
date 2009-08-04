@@ -6,6 +6,9 @@ AUTOMAKE_OPTIONS= dist-bzip2 no-dist-gzip std-options foreign
 EXTRA_DIST= autogen.sh README.mkd
 SUBDIRS= src doc . tests
 
+pkgconfigdir=$(libdir)/pkgconfig
+pkgconfig_DATA=libchess.pc
+
 doxygen:
 	$(MAKE) -C doc $@
 

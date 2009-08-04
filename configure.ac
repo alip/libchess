@@ -74,6 +74,7 @@ dnl }}}
 dnl {{{ Output
 AM_CONFIG_HEADER(config.h)
 AC_OUTPUT(
+		  libchess.pc
 		  Makefile
 		  src/Makefile
 		  tests/Makefile

@@ -16,6 +16,7 @@ Makefile
 gmon.out
 gprof*
 
+/libchess.pc
 /INSTALL
 /aclocal.m4
 /autom4te.cache
