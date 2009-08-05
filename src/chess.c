@@ -113,7 +113,7 @@ inline char chess_file_char(int square)
 
 inline int chess_square(int rank, int file)
 {
-    return (rank << 3) + (file % -9);
+    return (rank << 3) + file;
 }
 
 inline int chess_square_left(int square)
