@@ -4,41 +4,26 @@ dnl {{{ Program, version
 AC_PREREQ(2.59)
 AC_INIT([src/chess.c])
 
-VERSION_MAJOR=0
-VERSION_MINOR=1
-VERSION_SUFFIX=_alpha
-VERSION_FULL="$VERSION_MAJOR.$VERSION_MINOR$VERSION_SUFFIX"
-VERSION="$VERSION_FULL"
+# Libtool versioning - only update before a public release.
+# If the code has changed at all: REVISION++.
+# If any interfaces have changed at all: CURRENT++, REVISION=0.
+# If interfaces changed but it is backwards compatible: AGE++, else AGE=0.
+#  i.e. the library supports interfaces CURRENT - AGE up to CURRENT.
+#  if two libraries have identical CURRENT and AGE, then newest REVISION used.
+CURRENT=0
+AGE=0
+REVISION=1
 
-AC_SUBST([VERSION_MAJOR])
-AC_SUBST([VERSION_MINOR])
-AC_SUBST([VERSION_FULL])
+LT_VERSION_INFO="$CURRENT:$REVISION:$AGE"
+AC_SUBST(LT_VERSION_INFO)
 
-AM_INIT_AUTOMAKE(libchess, [$VERSION_FULL])
-
-dnl {{{ Git revision
-AC_MSG_CHECKING([for git head])
-if test -d "${GIT_DIR:-${ac_top_srcdir:-./}/.git}" ; then
-	GIT_HEAD=`git describe 2>/dev/null`
-	if test -z ${GIT_HEAD} ; then
-		GIT_HEAD=`git rev-parse --short HEAD`
-	fi
-	if test -n "`git diff-index -m --name-only HEAD`" ; then
-		GIT_HEAD=${GIT_HEAD}-dirty
-	fi
-	if test -n "${GIT_HEAD}" ; then
-		GIT_HEAD="-${GIT_HEAD}"
-	fi
-fi
-AC_MSG_RESULT([$GIT_HEAD])
-AC_SUBST([GIT_HEAD])
-dnl }}}
+AM_INIT_AUTOMAKE(libchess, [0.01])
 dnl }}}
 
 dnl {{{ Toolchain checks
 AC_PROG_CC_C99
 if test x"$ac_cv_prog_cc_c99" = x"no"; then
-	AC_MSG_ERROR([emily requires a C compiler that supports ISO C99!])
+	AC_MSG_ERROR([libchess requires a C compiler that supports ISO C99!])
 fi
 AC_PROG_INSTALL
 AC_PROG_MAKE_SET
