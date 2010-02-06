@@ -243,6 +243,39 @@ inline const char *chess_square_name(int square)
     }
 }
 
+char chess_piece_char(int piece, int side)
+{
+    bool iswhite;
+    char cpiece = 0;
+
+    iswhite = (side == CHESS_WHITE);
+
+    switch (piece) {
+        case CHESS_PAWN:
+            cpiece = iswhite ? 'p' : 'P';
+            break;
+        case CHESS_KNIGHT:
+            cpiece = iswhite ? 'n' : 'N';
+            break;
+        case CHESS_BISHOP:
+            cpiece = iswhite ? 'b' : 'B';
+            break;
+        case CHESS_ROOK:
+            cpiece = iswhite ? 'r' : 'R';
+            break;
+        case CHESS_QUEEN:
+            cpiece = iswhite ? 'q' : 'Q';
+            break;
+        case CHESS_KING:
+            cpiece = iswhite ? 'k' : 'K';
+            break;
+        default:
+            break;
+    }
+
+    return cpiece;
+}
+
 void chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int side)
 {
     int sqbit;

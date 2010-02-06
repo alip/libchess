@@ -119,6 +119,11 @@ int chess_square_index(const char *square);
 const char *chess_square_name(int square);
 
 /**
+ * Returns the character representation of the piece.
+ **/
+char chess_piece_char(int piece, int side);
+
+/**
  * This structure represents a chess board.
  **/
 struct chess_board {

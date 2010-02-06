@@ -260,6 +260,41 @@ START_TEST(test_chess_square_index)
 }
 END_TEST
 
+START_TEST(test_chess_piece_char)
+{
+    /* Invalid arguments */
+    fail_unless(0 == chess_piece_char(CHESS_PAWN - 1, CHESS_WHITE),
+            "chess_piece_char() didn't fail for invalid piece");
+    fail_unless(0 == chess_piece_char(CHESS_KING + 1, CHESS_WHITE),
+            "chess_piece_char() didn't fail for invalid piece");
+
+    fail_unless('p' == chess_piece_char(CHESS_PAWN, CHESS_WHITE),
+            "chess_piece_char() failed for white pawn");
+    fail_unless('P' == chess_piece_char(CHESS_PAWN, CHESS_BLACK),
+            "chess_piece_char() failed for black pawn");
+    fail_unless('n' == chess_piece_char(CHESS_KNIGHT, CHESS_WHITE),
+            "chess_piece_char() failed for white knight");
+    fail_unless('N' == chess_piece_char(CHESS_KNIGHT, CHESS_BLACK),
+            "chess_piece_char() failed for black knight");
+    fail_unless('b' == chess_piece_char(CHESS_BISHOP, CHESS_WHITE),
+            "chess_piece_char() failed for white bishop");
+    fail_unless('B' == chess_piece_char(CHESS_BISHOP, CHESS_BLACK),
+            "chess_piece_char() failed for black bishop");
+    fail_unless('r' == chess_piece_char(CHESS_ROOK, CHESS_WHITE),
+            "chess_piece_char() failed for white rook");
+    fail_unless('R' == chess_piece_char(CHESS_ROOK, CHESS_BLACK),
+            "chess_piece_char() failed for black rook");
+    fail_unless('q' == chess_piece_char(CHESS_QUEEN, CHESS_WHITE),
+            "chess_piece_char() failed for white queen");
+    fail_unless('Q' == chess_piece_char(CHESS_QUEEN, CHESS_BLACK),
+            "chess_piece_char() failed for black queen");
+    fail_unless('k' == chess_piece_char(CHESS_KING, CHESS_WHITE),
+            "chess_piece_char() failed for white king");
+    fail_unless('K' == chess_piece_char(CHESS_KING, CHESS_BLACK),
+            "chess_piece_char() failed for black king");
+}
+END_TEST
+
 START_TEST(test_chess_board_set_piece)
 {
     int x, y;
@@ -383,6 +418,7 @@ static Suite *chess_suite(void)
     tcase_add_test(tc_chess, test_chess_square_down);
     tcase_add_test(tc_chess, test_chess_square_border);
     tcase_add_test(tc_chess, test_chess_square_index);
+    tcase_add_test(tc_chess, test_chess_piece_char);
     tcase_add_test(tc_chess, test_chess_board_set_piece);
     tcase_add_test(tc_chess, test_chess_board_get_piece);
     tcase_add_test(tc_chess, test_chess_board_clear_piece);
