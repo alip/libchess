@@ -7,4 +7,3 @@ libchess_la_LDFLAGS= -version-info $(LT_VERSION_INFO)
 
 hdrdir= $(includedir)
 hdr_HEADERS= chess.h
-

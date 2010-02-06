@@ -11,4 +11,3 @@ pkgconfig_DATA=libchess.pc
 
 doxygen:
 	$(MAKE) -C doc $@
-
