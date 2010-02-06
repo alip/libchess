@@ -332,22 +332,20 @@ START_TEST(test_chess_board_get_piece)
 
 	memset(&board, 0, sizeof(struct chess_board));
 
-	/* Invalid arguments */
-	fail_unless(-1 == chess_board_get_piece(board, 0, NULL, NULL));
-
 	for (x = 0; x < 8; x++) {
 		for (y = 0; y < 8; y++) {
 			sq = chess_square(x, y);
 			chess_board_set_piece(&board, sq, CHESS_KING, CHESS_BLACK);
 
-			fail_unless(0 == chess_board_get_piece(board, sq, &piece, NULL),
-					"0 != chess_board_get_piece(%p, %d, %p, %p)",
+			fail_unless(chess_board_get_piece(board, sq, &piece, NULL),
+					"chess_board_get_piece(%p, %d, %p, %p) returned false",
 					&board, sq, &piece, NULL);
-			fail_unless(0 == chess_board_get_piece(board, sq, NULL, &side),
-					"0 != chess_board_get_piece(%p, %d, %p, %d)",
+			fail_unless(chess_board_get_piece(board, sq, NULL, &side),
+					"chess_board_get_piece(%p, %d, %p, %d) returned false",
 					&board, sq, NULL, &side);
-			fail_unless(0 == chess_board_get_piece(board, sq, &piece, &side),
-					"0 != chess_board_get_piece(%p, %d, %p, %d)", &board, sq, &piece, &side);
+			fail_unless(chess_board_get_piece(board, sq, &piece, &side),
+					"0 != chess_board_get_piece(%p, %d, %p, %d) returned false",
+					&board, sq, &piece, &side);
 			fail_unless(CHESS_KING == piece, "CHESS_KING != %d", piece);
 			fail_unless(CHESS_BLACK == side, "CHESS_BLACK != %d", side);
 		}

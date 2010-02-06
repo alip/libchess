@@ -18,8 +18,12 @@
  * Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include <assert.h>
+#include <sys/types.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "chess.h"
 #include "magicmoves.h"
@@ -175,7 +179,7 @@ chess_square_index(const char *square)
 	return chess_square(rank, file);
 }
 
-inline const char *
+const char *
 chess_square_name(int square)
 {
 	switch (square) {
@@ -303,33 +307,33 @@ chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int 
 	board_ptr->cboard[square] = piece;
 }
 
-int
+bool
 chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, int *side_ptr)
 {
 	int piece;
 
-	if (NULL == piece_ptr && NULL == side_ptr)
-	return -1;
+	assert(!(!piece_ptr && !side_ptr));
 
 	piece = board.cboard[square];
-	if (0 == piece) {
-		if (NULL != piece_ptr)
+	if (!piece) {
+		if (!piece_ptr)
 			*piece_ptr = 0;
-		if (NULL != side_ptr)
+		if (!side_ptr)
 			*side_ptr = 0;
-		return -1;
+		return false;
 	}
 
-	if (NULL != piece_ptr)
+	if (!piece_ptr)
 		*piece_ptr = piece;
 
-	if (NULL != side_ptr) {
+	if (!side_ptr) {
 		if (0 != (board.pieces[CHESS_WHITE][piece] & (1ULL << square)))
 			*side_ptr = CHESS_WHITE;
 		else
 			*side_ptr = CHESS_BLACK;
 	}
-	return 0;
+
+	return true;
 }
 
 void
@@ -349,4 +353,105 @@ bool
 chess_board_has_piece(struct chess_board board, int square, int side)
 {
 	return (0 != (board.occupied[side] & (1ULL << square)));
+}
+
+char *
+chess_board_fen(struct chess_board board, char *fen, size_t len)
+{
+	int cempty, square, piece, side, ret;
+	size_t ind;
+	const char *epsq;
+
+	ind = 0;
+
+#define PUSHCHAR(ch)				\
+	do {					\
+		fen[ind++] = (char)(ch);	\
+		if (ind >= len)			\
+			return NULL;		\
+	} while (0)
+
+	/* Step 1: Fill in the board position */
+	for (int rank = 7; rank >= 0; rank--) {
+		cempty = 0;
+
+		for (int file = 0; file < 8; file++) {
+			square = chess_square(rank, file);
+			if (!chess_board_get_piece(board, square, &piece, &side)) {
+				++cempty;
+				continue;
+			}
+
+			if (cempty > 0) {
+				assert(cempty <= 8);
+				PUSHCHAR(cempty + 48);
+				cempty = 0;
+			}
+
+			PUSHCHAR(chess_piece_char(piece, side));
+		}
+
+		if (cempty > 0) {
+			assert(cempty <= 8);
+			PUSHCHAR(cempty + 48);
+		}
+
+		if (rank > 0)
+			PUSHCHAR('/');
+	}
+
+
+	/* Field separator */
+	PUSHCHAR(' ');
+
+	/* Step 2: Fill in the side to move */
+	PUSHCHAR((board.side == CHESS_WHITE) ? 'w' : 'b');
+
+	/* Field separator */
+	PUSHCHAR(' ');
+
+	/* Step 3: Fill in the castling rights */
+	if (!(board.castling_flag & (CHESS_WHITE_CASTLE | CHESS_BLACK_CASTLE))) {
+		/* No castling rights, add '-' */
+		PUSHCHAR('-');
+	}
+	else {
+		if (board.castling_flag & (CHESS_WHITE_KINGSIDE_CASTLE)) {
+			/* White can castle king side */
+			PUSHCHAR('K');
+		}
+		if (board.castling_flag & (CHESS_WHITE_QUEENSIDE_CASTLE)) {
+			/* White can castle king side */
+			PUSHCHAR('Q');
+		}
+		if (board.castling_flag & (CHESS_BLACK_KINGSIDE_CASTLE)) {
+			/* Black can castle king side */
+			PUSHCHAR('k');
+		}
+		if (board.castling_flag & (CHESS_BLACK_QUEENSIDE_CASTLE)) {
+			/* Black can castle king side */
+			PUSHCHAR('q');
+		}
+	}
+
+	/* Field separator */
+	PUSHCHAR(' ');
+
+	/* Step 4: Fill in the en passant square */
+	if ((epsq = chess_square_name(board.en_passant)) == NULL) {
+		/* No en passant square, add '-' */
+		PUSHCHAR('-');
+	}
+	else {
+		PUSHCHAR(epsq[0]);
+		PUSHCHAR(epsq[1]);
+	}
+
+	PUSHCHAR('\0');
+#undef PUSHCHAR
+
+	ret = snprintf(fen + strlen(fen), len - strlen(fen), " %d %d", board.rhmc, board.fmc);
+	if (ret < 0 || (unsigned)ret > (len - strlen(fen)))
+		return NULL;
+	return fen;
 }

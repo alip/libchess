@@ -22,6 +22,7 @@
 #define LIBCHESS_GUARD_CHESS_H 1
 
 #include <stdbool.h>
+#include <sys/types.h>
 
 /**
  * \file
@@ -63,7 +64,38 @@
 #define CHESS_KING 6
 
 /**
+ * This castling flag is used to represent white king side castle.
+ **/
+#define CHESS_WHITE_KINGSIDE_CASTLE 0x0001
+
+/**
+ * This castling flag is used to represent white queen side castle.
+ **/
+#define CHESS_WHITE_QUEENSIDE_CASTLE 0x0002
+
+/**
+ * This castling flag is used to represent black king side castle.
+ **/
+#define CHESS_BLACK_KINGSIDE_CASTLE 0x0004
+
+/**
+ * This castling flag is used to represent black queen side castle.
+ **/
+#define CHESS_BLACK_QUEENSIDE_CASTLE 0x0008
+
+/**
+ * This castling flag is used to represent white castle.
+ **/
+#define CHESS_WHITE_CASTLE (CHESS_WHITE_KINGSIDE_CASTLE | CHESS_WHITE_QUEENSIDE_CASTLE)
+
+/**
+ * This castling flag is used to represent black castle.
+ **/
+#define CHESS_BLACK_CASTLE (CHESS_BLACK_KINGSIDE_CASTLE | CHESS_BLACK_QUEENSIDE_CASTLE)
+
+/**
  * Switches the side from white to black or vice versa.
+ * \param side Side, either CHESS_WHITE or CHESS_BLACK
  **/
 int
 chess_switch_side(int side);
@@ -171,8 +203,10 @@ chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int 
 
 /**
  * Get piece on the given square of the board.
+ * Returns true if a piece is found on the given square, false otherwise.
+ * One of piece_ptr and side_ptr may be NULL but not both.
  **/
-int
+bool
 chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, int *side_ptr);
 
 /**
@@ -186,5 +220,14 @@ chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, in
  **/
 bool
 chess_board_has_piece(struct chess_board board, int square, int side);
+
+/**
+ * Returns the Forsyth–Edwards Notation of the current position.
+ * Returns NULL if there wasn't enough room to hold the notation.
+ * \param fen String to hold the FEN notation
+ * \param len Length of the string
+ **/
+char *
+chess_board_fen(struct chess_board board, char *fen, size_t len);
 
 #endif /* !LIBCHESS_GUARD_CHESS_H */
