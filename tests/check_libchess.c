@@ -29,13 +29,13 @@ START_TEST(test_chess_switch_side)
 {
 	int side;
 
-	side = CHESS_WHITE;
+	side = CHESS_SIDE_WHITE;
 	side = chess_switch_side(side);
-	fail_unless(CHESS_BLACK == side);
+	fail_unless(CHESS_SIDE_BLACK == side);
 
-	side = CHESS_BLACK;
+	side = CHESS_SIDE_BLACK;
 	side = chess_switch_side(side);
-	fail_unless(CHESS_WHITE == side);
+	fail_unless(CHESS_SIDE_WHITE == side);
 }
 END_TEST
 
@@ -274,139 +274,276 @@ END_TEST
 
 START_TEST(test_chess_piece_char)
 {
-	/* Invalid arguments */
-	fail_unless(0 == chess_piece_char(CHESS_PAWN - 1, CHESS_WHITE));
-	fail_unless(0 == chess_piece_char(CHESS_KING + 1, CHESS_WHITE));
-
-	/* Valid arguments */
-	fail_unless('p' == chess_piece_char(CHESS_PAWN, CHESS_WHITE));
-	fail_unless('P' == chess_piece_char(CHESS_PAWN, CHESS_BLACK));
-	fail_unless('n' == chess_piece_char(CHESS_KNIGHT, CHESS_WHITE));
-	fail_unless('N' == chess_piece_char(CHESS_KNIGHT, CHESS_BLACK));
-	fail_unless('b' == chess_piece_char(CHESS_BISHOP, CHESS_WHITE));
-	fail_unless('B' == chess_piece_char(CHESS_BISHOP, CHESS_BLACK));
-	fail_unless('r' == chess_piece_char(CHESS_ROOK, CHESS_WHITE));
-	fail_unless('R' == chess_piece_char(CHESS_ROOK, CHESS_BLACK));
-	fail_unless('q' == chess_piece_char(CHESS_QUEEN, CHESS_WHITE));
-	fail_unless('Q' == chess_piece_char(CHESS_QUEEN, CHESS_BLACK));
-	fail_unless('k' == chess_piece_char(CHESS_KING, CHESS_WHITE));
-	fail_unless('K' == chess_piece_char(CHESS_KING, CHESS_BLACK));
+	fail_unless('P' == chess_piece_char(CHESS_PIECE_PAWN, CHESS_SIDE_WHITE));
+	fail_unless('p' == chess_piece_char(CHESS_PIECE_PAWN, CHESS_SIDE_BLACK));
+	fail_unless('N' == chess_piece_char(CHESS_PIECE_KNIGHT, CHESS_SIDE_WHITE));
+	fail_unless('n' == chess_piece_char(CHESS_PIECE_KNIGHT, CHESS_SIDE_BLACK));
+	fail_unless('B' == chess_piece_char(CHESS_PIECE_BISHOP, CHESS_SIDE_WHITE));
+	fail_unless('b' == chess_piece_char(CHESS_PIECE_BISHOP, CHESS_SIDE_BLACK));
+	fail_unless('R' == chess_piece_char(CHESS_PIECE_ROOK, CHESS_SIDE_WHITE));
+	fail_unless('r' == chess_piece_char(CHESS_PIECE_ROOK, CHESS_SIDE_BLACK));
+	fail_unless('Q' == chess_piece_char(CHESS_PIECE_QUEEN, CHESS_SIDE_WHITE));
+	fail_unless('q' == chess_piece_char(CHESS_PIECE_QUEEN, CHESS_SIDE_BLACK));
+	fail_unless('K' == chess_piece_char(CHESS_PIECE_KING, CHESS_SIDE_WHITE));
+	fail_unless('k' == chess_piece_char(CHESS_PIECE_KING, CHESS_SIDE_BLACK));
 }
 END_TEST
 
-START_TEST(test_chess_board_set_piece)
+START_TEST(test_chess_board_init)
 {
-	int x, y;
-	int sq;
-	struct chess_board board;
+	struct chess_board *board;
 
-	memset(&board, 0, sizeof(struct chess_board));
-	for (x = 0; x < 8; x++) {
-		for (y = 0; y < 8; y++) {
-			sq = chess_square(x, y);
-			chess_board_set_piece(&board, sq, CHESS_BISHOP, CHESS_WHITE);
+	board = chess_board_init();
+	fail_unless(board != NULL);
 
-			fail_unless(0 != (board.pieces[CHESS_WHITE][CHESS_BISHOP] & (1ULL << sq)),
-					"board.pieces[CHESS_WHITE][CHESS_BISHOP] doesn't have square %d set!",
-					sq);
-			fail_unless(0 != (board.occupied[CHESS_WHITE] & (1ULL << sq)),
-					"board.occupied[CHESS_WHITE] doesn't have square %d set!",
-					sq);
-			fail_unless(0 != (board.occupied[2] & (1ULL << sq)),
-					"board.occupied[2] doesn't have square %d set!", sq);
-			fail_unless(0 == (board.occupied[3] & (1ULL << sq)),
-					"board.occupied[3] has square %d set!", sq);
-			fail_unless(CHESS_BISHOP == board.cboard[sq],
-					"board.cboard[%d] != CHESS_BISHOP", sq);
-		}
-	}
+	free(board);
 }
 END_TEST
 
-START_TEST(test_chess_board_get_piece)
+START_TEST(test_chess_board_side)
 {
-	int x, y;
-	int sq;
-	int piece, side;
-	struct chess_board board;
+	struct chess_board *board;
 
-	memset(&board, 0, sizeof(struct chess_board));
+	board = chess_board_init();
+	fail_unless(board != NULL);
 
-	for (x = 0; x < 8; x++) {
-		for (y = 0; y < 8; y++) {
-			sq = chess_square(x, y);
-			chess_board_set_piece(&board, sq, CHESS_KING, CHESS_BLACK);
+	fail_unless(chess_board_get_side(board) == CHESS_SIDE_WHITE);
 
-			fail_unless(chess_board_get_piece(board, sq, &piece, NULL),
-					"chess_board_get_piece(%p, %d, %p, %p) returned false",
-					&board, sq, &piece, NULL);
-			fail_unless(chess_board_get_piece(board, sq, NULL, &side),
-					"chess_board_get_piece(%p, %d, %p, %d) returned false",
-					&board, sq, NULL, &side);
-			fail_unless(chess_board_get_piece(board, sq, &piece, &side),
-					"0 != chess_board_get_piece(%p, %d, %p, %d) returned false",
-					&board, sq, &piece, &side);
-			fail_unless(CHESS_KING == piece, "CHESS_KING != %d", piece);
-			fail_unless(CHESS_BLACK == side, "CHESS_BLACK != %d", side);
-		}
-	}
+	chess_board_set_side(board, CHESS_SIDE_BLACK);
+	fail_unless(chess_board_get_side(board) == CHESS_SIDE_BLACK);
+
+	chess_board_set_side(board, CHESS_SIDE_WHITE);
+	fail_unless(chess_board_get_side(board) == CHESS_SIDE_WHITE);
+
+	free(board);
 }
 END_TEST
 
-START_TEST(test_chess_board_clear_piece)
+START_TEST(test_chess_board_enpassant_square)
 {
-	int x, y;
-	int sq;
-	struct chess_board board;
+	struct chess_board *board;
 
-	memset(&board, 0, sizeof(struct chess_board));
+	board = chess_board_init();
+	fail_unless(board != NULL);
 
-	for (x = 0; x < 8; x++) {
-		for (y = 0; y < 8; y++) {
-			sq = chess_square(x, y);
+	fail_unless(chess_board_get_enpassant_square(board) == -1);
 
-			chess_board_set_piece(&board, sq, CHESS_PAWN, CHESS_WHITE);
-			chess_board_clear_piece(&board, sq, CHESS_PAWN, CHESS_WHITE);
+	chess_board_set_enpassant_square(board, chess_square_index("e3"));
+	fail_unless(chess_board_get_enpassant_square(board) == chess_square_index("e3"));
 
-			fail_unless(0 == (board.pieces[CHESS_WHITE][CHESS_PAWN] & (1ULL << sq)),
-					"board.pieces[CHESS_WHITE][CHESS_BISHOP] has square %d set!",
-					sq);
-			fail_unless(0 == (board.occupied[CHESS_WHITE] & (1ULL << sq)),
-					"board.occupied[CHESS_WHITE] has square %d set!",
-					sq);
-			fail_unless(0 == (board.occupied[2] & (1ULL << sq)),
-					"board.occupied[2] has square %d set!",
-					sq);
-			fail_unless(0 != (board.occupied[3] & (1ULL << sq)),
-					"board.occupied[3] doesn't have square %d set!",
-					sq);
-			fail_unless(0 == board.cboard[sq], "board.cboard[%d] != 0", sq);
-		}
-	}
+	free(board);
 }
 END_TEST
 
-START_TEST(test_chess_board_has_piece)
+START_TEST(test_chess_board_castling_flags)
 {
-	int x, y;
-	int sq;
-	struct chess_board board;
+	int cflag;
+	struct chess_board *board;
 
-	memset(&board, 0, sizeof(struct chess_board));
+	board = chess_board_init();
+	fail_unless(board != NULL);
+
+	fail_unless(chess_board_get_castling_flags(board) == 0);
+
+	chess_board_set_castling_flags(board, CHESS_CASTLE_KINGSIDE_WHITE);
+	cflag = chess_board_get_castling_flags(board);
+	fail_unless((cflag & CHESS_CASTLE_KINGSIDE_WHITE) == CHESS_CASTLE_KINGSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_WHITE) == CHESS_CASTLE_QUEENSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_BLACK) == CHESS_CASTLE_KINGSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_BLACK) == CHESS_CASTLE_QUEENSIDE_BLACK);
+
+	chess_board_set_castling_flags(board, CHESS_CASTLE_QUEENSIDE_WHITE);
+	cflag = chess_board_get_castling_flags(board);
+	fail_unless((cflag & CHESS_CASTLE_QUEENSIDE_WHITE) == CHESS_CASTLE_QUEENSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_WHITE) == CHESS_CASTLE_KINGSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_BLACK) == CHESS_CASTLE_KINGSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_BLACK) == CHESS_CASTLE_QUEENSIDE_BLACK);
+
+	chess_board_set_castling_flags(board, CHESS_CASTLE_KINGSIDE_BLACK);
+	cflag = chess_board_get_castling_flags(board);
+	fail_unless((cflag & CHESS_CASTLE_KINGSIDE_BLACK) == CHESS_CASTLE_KINGSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_BLACK) == CHESS_CASTLE_QUEENSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_WHITE) == CHESS_CASTLE_KINGSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_WHITE) == CHESS_CASTLE_QUEENSIDE_WHITE);
+
+	chess_board_set_castling_flags(board, CHESS_CASTLE_QUEENSIDE_BLACK);
+	cflag = chess_board_get_castling_flags(board);
+	fail_unless((cflag & CHESS_CASTLE_QUEENSIDE_BLACK) == CHESS_CASTLE_QUEENSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_BLACK) == CHESS_CASTLE_KINGSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_WHITE) == CHESS_CASTLE_KINGSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_WHITE) == CHESS_CASTLE_QUEENSIDE_WHITE);
+
+	chess_board_set_castling_flags(board, CHESS_CASTLE_WHITE);
+	cflag = chess_board_get_castling_flags(board);
+	fail_unless((cflag & CHESS_CASTLE_WHITE) == CHESS_CASTLE_WHITE);
+	fail_unless((cflag & CHESS_CASTLE_KINGSIDE_WHITE) == CHESS_CASTLE_KINGSIDE_WHITE);
+	fail_unless((cflag & CHESS_CASTLE_QUEENSIDE_WHITE) == CHESS_CASTLE_QUEENSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_BLACK) == CHESS_CASTLE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_BLACK) == CHESS_CASTLE_KINGSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_BLACK) == CHESS_CASTLE_QUEENSIDE_BLACK);
+
+	chess_board_set_castling_flags(board, CHESS_CASTLE_BLACK);
+	cflag = chess_board_get_castling_flags(board);
+	fail_unless((cflag & CHESS_CASTLE_BLACK) == CHESS_CASTLE_BLACK);
+	fail_unless((cflag & CHESS_CASTLE_KINGSIDE_BLACK) == CHESS_CASTLE_KINGSIDE_BLACK);
+	fail_unless((cflag & CHESS_CASTLE_QUEENSIDE_BLACK) == CHESS_CASTLE_QUEENSIDE_BLACK);
+	fail_if((cflag & CHESS_CASTLE_WHITE) == CHESS_CASTLE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_KINGSIDE_WHITE) == CHESS_CASTLE_KINGSIDE_WHITE);
+	fail_if((cflag & CHESS_CASTLE_QUEENSIDE_WHITE) == CHESS_CASTLE_QUEENSIDE_WHITE);
+
+	free(board);
+}
+END_TEST
+
+START_TEST(test_chess_board_initial_square)
+{
+	int x, y, sq;
+	struct chess_board *board;
+
+	board = chess_board_init();
+	fail_unless(board != NULL);
+
+	fail_unless(chess_board_get_initial_king_square(board) == chess_square_index("e1"));
+	fail_unless(chess_board_get_initial_krook_square(board) == chess_square_index("h1"));
+	fail_unless(chess_board_get_initial_qrook_square(board) == chess_square_index("a1"));
 
 	for (x = 0; x < 8; x++) {
 		for (y = 0; y < 8; y++) {
 			sq = chess_square(x, y);
-			chess_board_set_piece(&board, sq, CHESS_ROOK, CHESS_BLACK);
-
-			fail_unless(chess_board_has_piece(board, sq, CHESS_BLACK),
-					"Black doesn't have a rook on square: %d",
-					sq);
-			fail_if(chess_board_has_piece(board, sq, CHESS_WHITE),
-					"White has a rook on square: %d",
-					sq);
+			chess_board_set_initial_king_square(board, sq);
+			fail_unless(chess_board_get_initial_king_square(board) == sq, "%d", sq);
 		}
 	}
+
+	for (x = 0; x < 8; x++) {
+		for (y = 0; y < 8; y++) {
+			sq = chess_square(x, y);
+			chess_board_set_initial_krook_square(board, sq);
+			fail_unless(chess_board_get_initial_krook_square(board) == sq, "%d", sq);
+		}
+	}
+
+	for (x = 0; x < 8; x++) {
+		for (y = 0; y < 8; y++) {
+			sq = chess_square(x, y);
+			chess_board_set_initial_qrook_square(board, sq);
+			fail_unless(chess_board_get_initial_qrook_square(board) == sq, "%d", sq);
+		}
+	}
+
+	free(board);
+}
+END_TEST
+
+START_TEST(test_chess_board_rhmc)
+{
+	struct chess_board *board;
+
+	board = chess_board_init();
+	fail_unless(board != NULL);
+
+	fail_unless(chess_board_get_rhmc(board) == 0);
+
+	chess_board_set_rhmc(board, 3);
+	fail_unless(chess_board_get_rhmc(board) == 3);
+
+	free(board);
+}
+END_TEST
+
+START_TEST(test_chess_board_fmc)
+{
+	struct chess_board *board;
+
+	board = chess_board_init();
+	fail_unless(board != NULL);
+
+	fail_unless(chess_board_get_fmc(board) == 1);
+
+	chess_board_set_fmc(board, 3);
+	fail_unless(chess_board_get_fmc(board) == 3);
+
+	free(board);
+}
+END_TEST
+
+START_TEST(test_chess_board_piece)
+{
+	int x, y, sq, piece, side;
+	struct chess_board *board;
+
+	board = chess_board_init();
+	fail_unless(board != NULL);
+
+	for (x = 0; x < 8; x++) {
+		for (y = 0; y < 8; y++) {
+			sq = chess_square(x, y);
+
+			/* Make sure the square is empty */
+			fail_if(chess_board_has_piece(board, sq, CHESS_SIDE_WHITE), "%d", sq);
+			fail_if(chess_board_has_piece(board, sq, CHESS_SIDE_BLACK), "%d", sq);
+			fail_if(chess_board_get_piece(board, sq, NULL, NULL), "%d", sq);
+
+			/* Set a white bishop on the square */
+			chess_board_set_piece(board, sq, CHESS_PIECE_BISHOP, CHESS_SIDE_WHITE);
+
+			/* Check if the piece is there */
+			fail_unless(chess_board_has_piece(board, sq, CHESS_SIDE_WHITE), "%d", sq);
+			fail_unless(chess_board_get_piece(board, sq, &piece, &side), "%d", sq);
+			fail_unless(piece == CHESS_PIECE_BISHOP, "%d", sq);
+			fail_unless(side == CHESS_SIDE_WHITE, "%d", sq);
+
+			/* Clear the piece */
+			chess_board_clear_piece(board, sq, piece, side);
+
+			/* Make sure the piece is gone */
+			fail_if(chess_board_has_piece(board, sq, CHESS_SIDE_WHITE), "%d", sq);
+			fail_if(chess_board_has_piece(board, sq, CHESS_SIDE_BLACK), "%d", sq);
+			fail_if(chess_board_get_piece(board, sq, NULL, NULL), "%d", sq);
+		}
+	}
+
+	free(board);
+}
+END_TEST
+
+START_TEST(test_chess_board_get_fen)
+{
+#define FEN_MAX 256
+	size_t len;
+	const char *expected;
+	char fen[FEN_MAX];
+	struct chess_board *board;
+
+	board = chess_board_init();
+	fail_unless(board != NULL);
+
+	/* Check the initial empty board */
+	expected = "8/8/8/8/8/8/8/8 w - - 0 1";
+
+	/* Invalid length */
+	for (len = 0; len < strlen(expected); len++)
+		fail_if(chess_board_get_fen(board, fen, len) != NULL, "`%s' - %u", fen, len);
+
+	fail_unless(chess_board_get_fen(board, fen, FEN_MAX) != NULL);
+	fail_unless(strncmp(fen, expected, sizeof(expected)) == 0, "`%s' != `%s'", fen, expected);
+
+	/* Place a white rook on a1 */
+	expected = "8/8/8/8/8/8/8/R7 w - - 0 1";
+
+	chess_board_set_piece(board, chess_square_index("a1"), CHESS_PIECE_ROOK, CHESS_SIDE_WHITE);
+	fail_unless(chess_board_get_fen(board, fen, FEN_MAX) != NULL);
+	fail_unless(strncmp(fen, expected, strlen(expected) + 1) == 0, "`%s' != `%s'", fen, expected);
+
+	/* Place a white bishop on c1 */
+	expected = "8/8/8/8/8/8/8/R1B5 w - - 0 1";
+
+	chess_board_set_piece(board, chess_square_index("c1"), CHESS_PIECE_BISHOP, CHESS_SIDE_WHITE);
+	fail_unless(chess_board_get_fen(board, fen, FEN_MAX) != NULL);
+	fail_unless(strncmp(fen, expected, strlen(expected) + 1) == 0, "`%s' != `%s'", fen, expected);
+
+#undef FEN_MAX
+	free(board);
 }
 END_TEST
 
@@ -428,10 +565,15 @@ static Suite *chess_suite(void)
 	tcase_add_test(tc_chess, test_chess_square_border);
 	tcase_add_test(tc_chess, test_chess_square_index);
 	tcase_add_test(tc_chess, test_chess_piece_char);
-	tcase_add_test(tc_chess, test_chess_board_set_piece);
-	tcase_add_test(tc_chess, test_chess_board_get_piece);
-	tcase_add_test(tc_chess, test_chess_board_clear_piece);
-	tcase_add_test(tc_chess, test_chess_board_has_piece);
+	tcase_add_test(tc_chess, test_chess_board_init);
+	tcase_add_test(tc_chess, test_chess_board_side);
+	tcase_add_test(tc_chess, test_chess_board_enpassant_square);
+	tcase_add_test(tc_chess, test_chess_board_castling_flags);
+	tcase_add_test(tc_chess, test_chess_board_initial_square);
+	tcase_add_test(tc_chess, test_chess_board_rhmc);
+	tcase_add_test(tc_chess, test_chess_board_fmc);
+	tcase_add_test(tc_chess, test_chess_board_piece);
+	tcase_add_test(tc_chess, test_chess_board_get_fen);
 
 	suite_add_tcase(s, tc_chess);
 

@@ -28,6 +28,18 @@
 #include "chess.h"
 #include "magicmoves.h"
 
+struct chess_board {
+	int side;				/**< Side to move */
+	int epsq;				/**< En passant square */
+	int cflag;				/**< Castling flags */
+	int isq[3];				/**< Initial squares of white king, king rook, and queen rook */
+	unsigned rhmc;				/**< Reversible half move counter */
+	unsigned fmc;				/**< Full move counter */
+	int cboard[64];				/**< cboard[sq] gives the piece on square sq. */
+	unsigned long long occupied[4];		/**< Occupied squares, (white, black, all, empty) */
+	unsigned long long pieces[2][6];	/**< Pieces */
+};
+
 static const unsigned long long PAWN_ATTACKS[2][64] = {
 	{0, 0, 0, 0, 0, 0, 0, 0,
 	0x0000000000020000, 0x0000000000050000, 0x00000000000a0000, 0x0000000000140000,
@@ -98,37 +110,50 @@ static const unsigned long long KING_ATTACKS[64] = {
 inline int
 chess_switch_side(int side)
 {
+	assert(side >= CHESS_SIDE_WHITE && side <= CHESS_SIDE_BLACK);
+
 	return 1 ^ side;
 }
 
 inline int
 chess_rank(int square)
 {
+	assert(square >= 0 && square <= 63);
+
 	return square >> 3;
 }
 
 inline int
 chess_file(int square)
 {
+	assert(square >= 0 && square <= 63);
+
 	return square & 7;
 }
 
 inline char
 chess_file_char(int square)
 {
+	assert(square >= 0 && square <= 63);
+
 	return (char) chess_file(square) + 97;
 }
 
 inline int
 chess_square(int rank, int file)
 {
+	assert(rank >= 0 && rank <= 7);
+	assert(file >= 0 && file <= 7);
+
 	return (rank << 3) + file;
 }
 
 inline int
 chess_square_left(int square)
 {
-	if (0 != square % 8)
+	assert(square >= 0 && square <= 63);
+
+	if (square % 8 != 0)
 		return square - 1;
 	return -1;
 }
@@ -136,7 +161,9 @@ chess_square_left(int square)
 inline int
 chess_square_right(int square)
 {
-	if (7 != square % 8)
+	assert(square >= 0 && square <= 63);
+
+	if (square % 8 != 7)
 		return square + 1;
 	return -1;
 }
@@ -144,7 +171,9 @@ chess_square_right(int square)
 inline int
 chess_square_up(int square)
 {
-	if (55 > square)
+	assert(square >= 0 && square <= 63);
+
+	if (square < 55)
 		return square + 8;
 	return -1;
 }
@@ -152,7 +181,9 @@ chess_square_up(int square)
 inline int
 chess_square_down(int square)
 {
-	if (7 < square)
+	assert(square >= 0 && square <= 63);
+
+	if (square > 7)
 		return square - 8;
 	return -1;
 }
@@ -161,6 +192,8 @@ inline bool
 chess_square_border(int square)
 {
 	int file, rank;
+
+	assert(square >= 0 && square <= 63);
 
 	file = chess_file(square);
 	rank = chess_rank(square);
@@ -182,6 +215,8 @@ chess_square_index(const char *square)
 const char *
 chess_square_name(int square)
 {
+	assert(square >= 0 && square <= 63);
+
 	switch (square) {
 	case 0: return "a1";
 	case 1: return "b1";
@@ -265,27 +300,30 @@ chess_piece_char(int piece, int side)
 	bool iswhite;
 	char cpiece;
 
-	iswhite = (side == CHESS_WHITE);
+	assert(piece >= CHESS_PIECE_PAWN && piece <= CHESS_PIECE_KING);
+	assert(side == CHESS_SIDE_WHITE || side == CHESS_SIDE_BLACK);
+
+	iswhite = (side == CHESS_SIDE_WHITE);
 	cpiece = 0;
 
 	switch (piece) {
-	case CHESS_PAWN:
-		cpiece = iswhite ? 'p' : 'P';
+	case CHESS_PIECE_PAWN:
+		cpiece = iswhite ? 'P' : 'p';
 		break;
-	case CHESS_KNIGHT:
-		cpiece = iswhite ? 'n' : 'N';
+	case CHESS_PIECE_KNIGHT:
+		cpiece = iswhite ? 'N' : 'n';
 		break;
-	case CHESS_BISHOP:
-		cpiece = iswhite ? 'b' : 'B';
+	case CHESS_PIECE_BISHOP:
+		cpiece = iswhite ? 'B' : 'b';
 		break;
-	case CHESS_ROOK:
-		cpiece = iswhite ? 'r' : 'R';
+	case CHESS_PIECE_ROOK:
+		cpiece = iswhite ? 'R' : 'r';
 		break;
-	case CHESS_QUEEN:
-		cpiece = iswhite ? 'q' : 'Q';
+	case CHESS_PIECE_QUEEN:
+		cpiece = iswhite ? 'Q' : 'q';
 		break;
-	case CHESS_KING:
-		cpiece = iswhite ? 'k' : 'K';
+	case CHESS_PIECE_KING:
+		cpiece = iswhite ? 'K' : 'k';
 		break;
 	default:
 		break;
@@ -294,71 +332,208 @@ chess_piece_char(int piece, int side)
 	return cpiece;
 }
 
-void
-chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int side)
+struct chess_board *
+chess_board_init(void)
 {
-	int sqbit;
+	struct chess_board *board;
+
+	board = calloc(1, sizeof(struct chess_board));
+	if (board == NULL)
+		return NULL;
+
+	board->side = CHESS_SIDE_WHITE;
+	board->epsq = -1;
+	board->cflag = 0;
+	board->isq[0] = chess_square_index("e1");
+	board->isq[1] = chess_square_index("h1");
+	board->isq[2] = chess_square_index("a1");
+	board->rhmc = 0;
+	board->fmc = 1;
+
+	return board;
+}
+
+int
+chess_board_get_side(const struct chess_board *board)
+{
+	return board->side;
+}
+
+void
+chess_board_set_side(struct chess_board *board, int side)
+{
+	assert(side == CHESS_SIDE_WHITE || side == CHESS_SIDE_BLACK);
+
+	board->side = side;
+}
+
+int
+chess_board_get_enpassant_square(const struct chess_board *board)
+{
+	return board->epsq;
+}
+
+void
+chess_board_set_enpassant_square(struct chess_board *board, int square)
+{
+	assert(square >= 0 && square <= 63);
+
+	board->epsq = square;
+}
+
+int
+chess_board_get_castling_flags(const struct chess_board *board)
+{
+	return board->cflag;
+}
+
+void
+chess_board_set_castling_flags(struct chess_board *board, int flags)
+{
+	board->cflag = flags;
+}
+
+int
+chess_board_get_initial_king_square(const struct chess_board *board)
+{
+	return board->isq[0];
+}
+
+void
+chess_board_set_initial_king_square(struct chess_board *board, int square)
+{
+	assert(square >= 0 && square <= 63);
+
+	board->isq[0] = square;
+}
+
+int
+chess_board_get_initial_krook_square(const struct chess_board *board)
+{
+	return board->isq[1];
+}
+
+void
+chess_board_set_initial_krook_square(struct chess_board *board, int square)
+{
+	assert(square >= 0 && square <= 63);
+
+	board->isq[1] = square;
+}
+
+int
+chess_board_get_initial_qrook_square(const struct chess_board *board)
+{
+	return board->isq[2];
+}
+
+void
+chess_board_set_initial_qrook_square(struct chess_board *board, int square)
+{
+	assert(square >= 0 && square <= 63);
+
+	board->isq[2] = square;
+}
+
+unsigned
+chess_board_get_rhmc(const struct chess_board *board)
+{
+	return board->rhmc;
+}
+
+void
+chess_board_set_rhmc(struct chess_board *board, unsigned count)
+{
+	board->rhmc = count;
+}
+
+unsigned
+chess_board_get_fmc(const struct chess_board *board)
+{
+	return board->fmc;
+}
+
+void
+chess_board_set_fmc(struct chess_board *board, unsigned count)
+{
+	board->fmc = count;
+}
+
+void
+chess_board_set_piece(struct chess_board *board, int square, int piece, int side)
+{
+	unsigned long long sqbit;
+
+	assert(square >= 0 && square <= 63);
+	assert(piece >= CHESS_PIECE_PAWN && piece <= CHESS_PIECE_KING);
 
 	sqbit = (1ULL << square);
-	board_ptr->pieces[side][piece] |= sqbit;
-	board_ptr->occupied[side] |= sqbit;
-	board_ptr->occupied[2] |= sqbit;
-	board_ptr->occupied[3] &= ~sqbit;
-	board_ptr->cboard[square] = piece;
+	board->pieces[side][piece] |= sqbit;
+	board->occupied[side] |= sqbit;
+	board->occupied[2] |= sqbit;
+	board->occupied[3] &= ~sqbit;
+	board->cboard[square] = piece;
 }
 
 bool
-chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, int *side_ptr)
+chess_board_get_piece(const struct chess_board *board, int square, int *piece_r, int *side_r)
 {
 	int piece;
 
-	assert(!(!piece_ptr && !side_ptr));
+	assert(square >= 0 && square <= 63);
 
-	piece = board.cboard[square];
+	piece = board->cboard[square];
 	if (!piece) {
-		if (!piece_ptr)
-			*piece_ptr = 0;
-		if (!side_ptr)
-			*side_ptr = 0;
+		if (piece_r != NULL)
+			*piece_r = 0;
+		if (side_r != NULL)
+			*side_r = 0;
 		return false;
 	}
 
-	if (!piece_ptr)
-		*piece_ptr = piece;
+	if (piece_r != NULL)
+		*piece_r = piece;
 
-	if (!side_ptr) {
-		if (0 != (board.pieces[CHESS_WHITE][piece] & (1ULL << square)))
-			*side_ptr = CHESS_WHITE;
+	if (side_r != NULL) {
+		if ((board->pieces[CHESS_SIDE_WHITE][piece] & (1ULL << square)) != 0)
+			*side_r = CHESS_SIDE_WHITE;
 		else
-			*side_ptr = CHESS_BLACK;
+			*side_r = CHESS_SIDE_BLACK;
 	}
 
 	return true;
 }
 
 void
-chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, int side)
+chess_board_clear_piece(struct chess_board *board, int square, int piece, int side)
 {
-	int sqbit;
+	unsigned long long sqbit;
+
+	assert(square >= 0 && square <= 63);
+	assert(piece >= CHESS_PIECE_PAWN && piece <= CHESS_PIECE_KING);
+	assert(side == CHESS_SIDE_WHITE || side == CHESS_SIDE_BLACK);
 
 	sqbit = (1ULL << square);
-	board_ptr->pieces[side][piece] &= ~sqbit;
-	board_ptr->occupied[side] &= ~sqbit;
-	board_ptr->occupied[2] &= ~sqbit;
-	board_ptr->occupied[3] |= sqbit;
-	board_ptr->cboard[square] = 0;
+	board->pieces[side][piece] &= ~sqbit;
+	board->occupied[side] &= ~sqbit;
+	board->occupied[2] &= ~sqbit;
+	board->occupied[3] |= sqbit;
+	board->cboard[square] = 0;
 }
 
 bool
-chess_board_has_piece(struct chess_board board, int square, int side)
+chess_board_has_piece(const struct chess_board *board, int square, int side)
 {
-	return (0 != (board.occupied[side] & (1ULL << square)));
+	assert(square >= 0 && square <= 63);
+	assert(side == CHESS_SIDE_WHITE || side == CHESS_SIDE_BLACK);
+
+	return ((board->occupied[side] & (1ULL << square)) != 0);
 }
 
 char *
-chess_board_fen(struct chess_board board, char *fen, size_t len)
+chess_board_get_fen(struct chess_board *board, char *fen, size_t len)
 {
-	int cempty, square, piece, side, ret;
+	int empty, square, piece, side, ret;
 	size_t ind;
 	const char *epsq;
 
@@ -373,62 +548,59 @@ chess_board_fen(struct chess_board board, char *fen, size_t len)
 
 	/* Step 1: Fill in the board position */
 	for (int rank = 7; rank >= 0; rank--) {
-		cempty = 0;
+		empty = 0;
 
 		for (int file = 0; file < 8; file++) {
 			square = chess_square(rank, file);
-			if (!chess_board_get_piece(board, square, &piece, &side)) {
-				++cempty;
-				continue;
+			if (!chess_board_get_piece(board, square, &piece, &side))
+				++empty;
+			else {
+				if (empty > 0) {
+					assert(empty <= 8);
+					PUSHCHAR(empty + 48);
+					empty = 0;
+				}
+				PUSHCHAR(chess_piece_char(piece, side));
 			}
-
-			if (cempty > 0) {
-				assert(cempty <= 8);
-				PUSHCHAR(cempty + 48);
-				cempty = 0;
-			}
-
-			PUSHCHAR(chess_piece_char(piece, side));
 		}
 
-		if (cempty > 0) {
-			assert(cempty <= 8);
-			PUSHCHAR(cempty + 48);
+		if (empty > 0) {
+			assert(empty <= 8);
+			PUSHCHAR(empty + 48);
 		}
 
 		if (rank > 0)
 			PUSHCHAR('/');
 	}
 
-
 	/* Field separator */
 	PUSHCHAR(' ');
 
 	/* Step 2: Fill in the side to move */
-	PUSHCHAR((board.side == CHESS_WHITE) ? 'w' : 'b');
+	PUSHCHAR((board->side == CHESS_SIDE_WHITE) ? 'w' : 'b');
 
 	/* Field separator */
 	PUSHCHAR(' ');
 
 	/* Step 3: Fill in the castling rights */
-	if (!(board.castling_flag & (CHESS_WHITE_CASTLE | CHESS_BLACK_CASTLE))) {
+	if (!(board->cflag & (CHESS_CASTLE_WHITE | CHESS_CASTLE_BLACK))) {
 		/* No castling rights, add '-' */
 		PUSHCHAR('-');
 	}
 	else {
-		if (board.castling_flag & (CHESS_WHITE_KINGSIDE_CASTLE)) {
+		if (board->cflag & (CHESS_CASTLE_KINGSIDE_WHITE)) {
 			/* White can castle king side */
 			PUSHCHAR('K');
 		}
-		if (board.castling_flag & (CHESS_WHITE_QUEENSIDE_CASTLE)) {
+		if (board->cflag & (CHESS_CASTLE_QUEENSIDE_WHITE)) {
 			/* White can castle king side */
 			PUSHCHAR('Q');
 		}
-		if (board.castling_flag & (CHESS_BLACK_KINGSIDE_CASTLE)) {
+		if (board->cflag & (CHESS_CASTLE_KINGSIDE_BLACK)) {
 			/* Black can castle king side */
 			PUSHCHAR('k');
 		}
-		if (board.castling_flag & (CHESS_BLACK_QUEENSIDE_CASTLE)) {
+		if (board->cflag & (CHESS_CASTLE_QUEENSIDE_BLACK)) {
 			/* Black can castle king side */
 			PUSHCHAR('q');
 		}
@@ -438,11 +610,13 @@ chess_board_fen(struct chess_board board, char *fen, size_t len)
 	PUSHCHAR(' ');
 
 	/* Step 4: Fill in the en passant square */
-	if ((epsq = chess_square_name(board.en_passant)) == NULL) {
+	if (board->epsq < 0) {
 		/* No en passant square, add '-' */
 		PUSHCHAR('-');
 	}
 	else {
+		epsq = chess_square_name(board->epsq);
+		assert(epsq != NULL);
 		PUSHCHAR(epsq[0]);
 		PUSHCHAR(epsq[1]);
 	}
@@ -450,7 +624,7 @@ chess_board_fen(struct chess_board board, char *fen, size_t len)
 	PUSHCHAR('\0');
 #undef PUSHCHAR
 
-	ret = snprintf(fen + strlen(fen), len - strlen(fen), " %d %d", board.rhmc, board.fmc);
+	ret = snprintf(fen + strlen(fen), len - strlen(fen), " %d %d", board->rhmc, board->fmc);
 	if (ret < 0 || (unsigned)ret > (len - strlen(fen)))
 		return NULL;
 	return fen;

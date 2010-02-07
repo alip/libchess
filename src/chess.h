@@ -32,66 +32,66 @@
 /**
  * This define represents the white side.
  **/
-#define CHESS_WHITE 0
+#define CHESS_SIDE_WHITE 0
 /**
  * This define represents the black side.
  **/
-#define CHESS_BLACK 1
+#define CHESS_SIDE_BLACK 1
 
 /**
  * This define is used to represent pawn.
  **/
-#define CHESS_PAWN 1
+#define CHESS_PIECE_PAWN 1
 /**
  * This define is used to represent knight.
  **/
-#define CHESS_KNIGHT 2
+#define CHESS_PIECE_KNIGHT 2
 /**
  * This define is used to represent bishop.
  **/
-#define CHESS_BISHOP 3
+#define CHESS_PIECE_BISHOP 3
 /**
  * This define is used to represent rook.
  **/
-#define CHESS_ROOK 4
+#define CHESS_PIECE_ROOK 4
 /**
  * This define is used to represent queen.
  **/
-#define CHESS_QUEEN 5
+#define CHESS_PIECE_QUEEN 5
 /**
  * This define is used to represent king.
  **/
-#define CHESS_KING 6
+#define CHESS_PIECE_KING 6
 
 /**
  * This castling flag is used to represent white king side castle.
  **/
-#define CHESS_WHITE_KINGSIDE_CASTLE 0x0001
+#define CHESS_CASTLE_KINGSIDE_WHITE 0x0001
 
 /**
  * This castling flag is used to represent white queen side castle.
  **/
-#define CHESS_WHITE_QUEENSIDE_CASTLE 0x0002
+#define CHESS_CASTLE_QUEENSIDE_WHITE 0x0002
 
 /**
  * This castling flag is used to represent black king side castle.
  **/
-#define CHESS_BLACK_KINGSIDE_CASTLE 0x0004
+#define CHESS_CASTLE_KINGSIDE_BLACK 0x0004
 
 /**
  * This castling flag is used to represent black queen side castle.
  **/
-#define CHESS_BLACK_QUEENSIDE_CASTLE 0x0008
+#define CHESS_CASTLE_QUEENSIDE_BLACK 0x0008
 
 /**
  * This castling flag is used to represent white castle.
  **/
-#define CHESS_WHITE_CASTLE (CHESS_WHITE_KINGSIDE_CASTLE | CHESS_WHITE_QUEENSIDE_CASTLE)
+#define CHESS_CASTLE_WHITE (CHESS_CASTLE_KINGSIDE_WHITE | CHESS_CASTLE_QUEENSIDE_WHITE)
 
 /**
  * This castling flag is used to represent black castle.
  **/
-#define CHESS_BLACK_CASTLE (CHESS_BLACK_KINGSIDE_CASTLE | CHESS_BLACK_QUEENSIDE_CASTLE)
+#define CHESS_CASTLE_BLACK (CHESS_CASTLE_KINGSIDE_BLACK | CHESS_CASTLE_QUEENSIDE_BLACK)
 
 /**
  * Switches the side from white to black or vice versa.
@@ -179,47 +179,148 @@ char
 chess_piece_char(int piece, int side);
 
 /**
- * This structure represents a chess board.
+ * This opaque structure represents a chess board.
  **/
-struct chess_board {
-	int side;				/**< Side to move */
-	int en_passant;				/**< En passant square */
-	int castling_flag;			/**< Castling flags */
-	int king_isq;				/**< Initial square of the white king */
-	int kingrook_isq;			/**< Initial square of the white king rook */
-	int queenrook_isq;			/**< Initial square of the white queen rook */
-	int rhmc;				/**< Reversible half move counter */
-	int fmc;				/**< Full move counter */
-	int cboard[64];				/**< cboard[sq] gives the piece on square sq. */
-	unsigned long long occupied[4];		/**< Occupied squares, (white, black, all, empty) */
-	unsigned long long pieces[2][6];	/**< Pieces */
-};
+struct chess_board;
+
+/**
+ * Initializes and returns a chess board structure.
+ * Returns NULL if memory allocation fails and sets errno accordingly.
+ **/
+struct chess_board *
+chess_board_init(void);
+
+/**
+ * Returns the side to move.
+ **/
+int
+chess_board_get_side(const struct chess_board *board);
+
+/**
+ * Sets the side to move.
+ * \param side Side to move, either CHESS_WHITE or CHESS_BLACK.
+ **/
+void
+chess_board_set_side(struct chess_board *board, int side);
+
+/**
+ * Returns the en passant square.
+ **/
+int
+chess_board_get_enpassant_square(const struct chess_board *board);
+
+/**
+ * Sets the en passant square.
+ **/
+void
+chess_board_set_enpassant_square(struct chess_board *board, int square);
+
+/**
+ * Returns the castling flags.
+ **/
+int
+chess_board_get_castling_flags(const struct chess_board *board);
+
+/**
+ * Sets the castling flags.
+ **/
+void
+chess_board_set_castling_flags(struct chess_board *board, int flags);
+
+/**
+ * Returns the initial square of white king.
+ * Used to determine castling rights.
+ **/
+int
+chess_board_get_initial_king_square(const struct chess_board *board);
+
+/**
+ * Sets the initial square of white king.
+ * Used to determine castling rights.
+ **/
+void
+chess_board_set_initial_king_square(struct chess_board *board, int square);
+
+/**
+ * Returns the initial square of white king rook.
+ * Used to determine castling rights.
+ **/
+int
+chess_board_get_initial_krook_square(const struct chess_board *board);
+
+/**
+ * Sets the initial square of white king rook.
+ * Used to determine castling rights.
+ **/
+void
+chess_board_set_initial_krook_square(struct chess_board *board, int square);
+
+/**
+ * Returns the initial square of white queen rook.
+ * Used to determine castling rights.
+ **/
+int
+chess_board_get_initial_qrook_square(const struct chess_board *board);
+
+/**
+ * Sets the initial square of white queen rook.
+ * Used to determine castling rights.
+ **/
+void
+chess_board_set_initial_qrook_square(struct chess_board *board, int square);
+
+/**
+ * Returns the reversible half move counter.
+ * Used to determine if a draw can be claimed under the fifty-move rule.
+ **/
+unsigned
+chess_board_get_rhmc(const struct chess_board *board);
+
+/**
+ * Sets the reversible half move counter.
+ * Used to determine if a draw can be claimed under the fifty-move rule.
+ **/
+void
+chess_board_set_rhmc(struct chess_board *board, unsigned count);
+
+/**
+ * Returns the full move counter.
+ **/
+unsigned
+chess_board_get_fmc(const struct chess_board *board);
+
+/**
+ * Sets the full move counter.
+ **/
+void
+chess_board_set_fmc(struct chess_board *board, unsigned count);
 
 /**
  * Set piece to the given location on the board.
  **/
 void
-chess_board_set_piece(struct chess_board *board_ptr, int square, int piece, int side);
+chess_board_set_piece(struct chess_board *board, int square, int piece, int side);
 
 /**
  * Get piece on the given square of the board.
  * Returns true if a piece is found on the given square, false otherwise.
- * One of piece_ptr and side_ptr may be NULL but not both.
+ * \param piece_r Pointer to save the piece information, may be NULL.
+ * \param side_r Pointer to save the side information, may be NULL.
  **/
 bool
-chess_board_get_piece(struct chess_board board, int square, int *piece_ptr, int *side_ptr);
+chess_board_get_piece(const struct chess_board *board, int square, int *piece_r, int *side_r);
 
 /**
  * Clear the given piece on the given square of the board.
  **/
 void
-chess_board_clear_piece(struct chess_board *board_ptr, int square, int piece, int side);
+chess_board_clear_piece(struct chess_board *board, int square, int piece, int side);
 
 /**
  * Returns true if the given side has a piece on the given square.
  **/
 bool
-chess_board_has_piece(struct chess_board board, int square, int side);
+chess_board_has_piece(const struct chess_board *board, int square, int side);
 
 /**
  * Returns the Forsyth–Edwards Notation of the current position.
@@ -228,6 +329,6 @@ chess_board_has_piece(struct chess_board board, int square, int side);
  * \param len Length of the string
  **/
 char *
-chess_board_fen(struct chess_board board, char *fen, size_t len);
+chess_board_get_fen(struct chess_board *board, char *fen, size_t len);
 
 #endif /* !LIBCHESS_GUARD_CHESS_H */
